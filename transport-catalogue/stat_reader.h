@@ -10,4 +10,6 @@ namespace reader
 {
     void ParseAndPrintStat(const catalogue::Transport& transport_catalogue, std::string_view request,
                         std::ostream& output);
+
+    void ReadRequests(std::istream& input, const catalogue::Transport& transport_catalogue, std::ostream& output);
 }
