@@ -35,6 +35,7 @@ namespace reader
          */
         void ApplyCommands(catalogue::Transport& catalogue) const;
 
+        void ReadFrom(std::istream& input, catalogue::Transport& catalogue);
     private:
         std::vector<CommandDescription> commands_;
     };
