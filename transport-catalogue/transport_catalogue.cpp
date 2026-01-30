@@ -8,22 +8,20 @@
 using namespace utils;
 using namespace catalogue;
 
-void Transport::AddRoute(const std::string& id, const std::vector<std::string_view>& route)
-{
+void Transport::AddRoute(const std::string& id, const std::vector<std::string_view>& route) {
     std::vector<std::string> res;
     res.reserve(route.size());
-    for(auto& el : route)
+    for(auto& el : route) {
         res.push_back(std::string(el));
+    }
     routes_[id] = res;
 }
 
-void Transport::AddBusStop(const std::string& name, Coordinates coord)
-{
+void Transport::AddBusStop(const std::string& name, Coordinates coord) {
     stops_[name] = coord;
 }
 
- std::vector<std::string> Transport::SearchRoute(const std::string& id) const
-{
+ std::vector<std::string> Transport::SearchRoute(const std::string& id) const {
     auto it = routes_.find(id);
     if(it == routes_.end()) {
         return {};
@@ -31,8 +29,7 @@ void Transport::AddBusStop(const std::string& name, Coordinates coord)
     return it->second;
 }
 
-std::optional<Coordinates> Transport::SearchBusStop(const std::string& name) const
-{
+std::optional<Coordinates> Transport::SearchBusStop(const std::string& name) const {
     auto it = stops_.find(name);
     if(it == stops_.end()) {
         return std::nullopt;
@@ -40,8 +37,7 @@ std::optional<Coordinates> Transport::SearchBusStop(const std::string& name) con
     return it->second;
 }
 
-std::string Transport::GetRouteInfo(const std::string& name) const
-{
+std::string Transport::GetRouteInfo(const std::string& name) const {
     std::stringstream res;
     res << "Bus " + name + ": ";
     auto route = SearchRoute(name);
@@ -64,8 +60,7 @@ std::string Transport::GetRouteInfo(const std::string& name) const
     return res.str();
 }
 
-std::string Transport::GetBusesInfo(const std::string& name) const
-{
+std::string Transport::GetBusesInfo(const std::string& name) const {
     std::stringstream res;
     res << "Stop " + name + ": ";
 
@@ -75,10 +70,8 @@ std::string Transport::GetBusesInfo(const std::string& name) const
     }
 
     std::vector<std::string_view> resBuses;
-    for(auto& [stop, route] : routes_)
-    {
-        if(std::find(route.begin(), route.end(), name) != route.end())
-        {
+    for(auto& [stop, route] : routes_) {
+        if(std::find(route.begin(), route.end(), name) != route.end()) {
             resBuses.push_back(stop);
         }
     }
