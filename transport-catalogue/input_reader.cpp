@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <iostream>
 
 using namespace utils;
 using namespace reader;
@@ -113,4 +114,16 @@ void Input::ApplyCommands([[maybe_unused]] catalogue::Transport& catalogue) cons
             catalogue.AddRoute( command.id, ParseRoute(command.description));
         }
     }
+}
+
+void Input::ReadFrom(std::istream& input, catalogue::Transport& catalogue) {
+    int base_request_count;
+    input >> base_request_count >> std::ws;
+
+    for (int i = 0; i < base_request_count; ++i) {
+        std::string line;
+        std::getline(input, line);
+        ParseLine(line);
+    }
+    ApplyCommands(catalogue);
 }
