@@ -2,17 +2,44 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 void reader::ParseAndPrintStat(const catalogue::Transport& transport_catalogue, std::string_view request,
                        std::ostream& output) {
-    // Реализуйте самостоятельно
     size_t space_pos  = request.find(' ');
     
     if(request.substr(0, space_pos) == "Bus") {
-        output << transport_catalogue.GetRouteInfo(std::string(request.substr(space_pos + 1))) << std::endl;
+        std::string bus = std::string(request.substr(space_pos + 1));
+        auto info = transport_catalogue.GetRouteInfo(bus);
+        output << std::fixed <<  std::setprecision(6) << "Bus " << bus << ": ";
+        if(info.has_value()) {
+            output << 
+                    (*info).stops_count << " stops on route, " <<
+                    (*info).unique_stops_count << " unique stops, " <<
+                    (*info).length << " route length" << std::endl;
+       }
+       else { 
+            output << "not found" << std::endl;
+       }
     }
     else if(request.substr(0, space_pos) == "Stop") {
-        output << transport_catalogue.GetBusesInfo(std::string(request.substr(space_pos + 1))) << std::endl;
+        std::string stop = std::string(request.substr(space_pos + 1));
+        auto buses = transport_catalogue.GetBusesInfo(stop);
+         output << "Stop " << stop << ": ";
+        if(buses == std::nullopt) {
+            output << "not found" << std::endl;
+        }
+        else if(buses->size() == 0) {
+            output << "no buses" << std::endl;
+        }
+        else {
+             output << "buses ";
+            for(auto& bus : *buses) {
+                output << bus << " ";
+            }
+            output << std::endl;
+        }
     }
 }
 
