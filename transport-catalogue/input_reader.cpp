@@ -62,34 +62,22 @@ std::vector<std::string_view> Split(std::string_view string, char delim) {
 }
 
 std::vector<Distance> ParseDistances([[maybe_unused]]std::string_view str) {
-auto parts = Split(str, ',');      // Split уже Trim'ит элементы
+    auto data = Split(str, ',');
+    std::vector<std::string> distances (data.begin() + 2, data.end());
     std::vector<Distance> res;
-    if (parts.size() <= 2) return res;
+    res.reserve(distances.size());
+    for(auto& el : distances)
+    {
+        auto str_dist = std::string(el.begin(), el.begin() + el.find('m'));
+        double distance = std::stod(std::string(str_dist));
 
-    res.reserve(parts.size() - 2);
-
-    for (size_t i = 2; i < parts.size(); ++i) {
-        std::string_view el = Trim(parts[i]);
-
-        auto mpos = el.find('m');
-        if (mpos == el.npos) continue;
-
-        int dist = 0;
-        try {
-            dist = std::stoi(std::string(el.substr(0, mpos)));
-        } catch (...) {
-            continue;
-        }
-
-        std::string_view tail = Trim(el.substr(mpos + 1)); // после 'm'
-        // tail должен начинаться с "to"
-        if (tail.rfind("to", 0) != 0) continue;
-
-        std::string_view name = Trim(tail.substr(2)); // после "to"
-        if (name.empty()) continue;
-
-        res.push_back({std::string(name), static_cast<double>(dist)});
+        auto space = el.find(' ');
+        auto space2 = el.find(' ', space + 1);
+        auto name = std::string(el.begin() + space2 + 1, el.end());
+        Distance dist = { name, distance};
+        res.push_back(dist);
     }
+
     return res;
 }
 
@@ -139,21 +127,17 @@ void Input::ParseLine(std::string_view line) {
 }
 
 void Input::ApplyCommands([[maybe_unused]] catalogue::Transport& catalogue) const {
-    for (const auto& c : commands_) {
-        if (c.command == "Stop") {
-            catalogue.AddBusStop(c.id, ParseCoordinates(c.description));
+    for(auto& command : commands_) {
+        if(command.command == "Stop") {
+            catalogue.AddBusStop(command.id, ParseCoordinates(command.description));
+        }
+        else if (command.command == "Bus") {
+            catalogue.AddRoute( command.id, ParseRoute(command.description));
         }
     }
-
-    for (const auto& c : commands_) {
-        if (c.command == "Stop") {
-            catalogue.AddDistances(c.id, ParseDistances(c.description));
-        }
-    }
-
-    for (const auto& c : commands_) {
-        if (c.command == "Bus") {
-            catalogue.AddRoute(c.id, ParseRoute(c.description));
+    for(auto& command : commands_) {
+        if(command.command == "Stop") {
+            catalogue.AddDistances(command.id, ParseDistances(command.description));
         }
     }
 }
