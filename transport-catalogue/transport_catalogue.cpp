@@ -27,16 +27,14 @@ void Transport::AddBusStop(std::string_view name, Coordinates coord) {
     stop_to_routes_[it->name];
 }
 
-void Transport::AddDistances(std::string_view from, std::vector<Distance> distances) {
+void Transport::AddDistance(std::string_view from, std::string_view to, double distance) {
     auto it_from = ref_stops_.find(from);
     assert(it_from != ref_stops_.end());
 
-    for (const auto& d : distances) {
-        auto it_to = ref_stops_.find(d.stop);
-        if (it_to == ref_stops_.end()) 
-            continue; 
-        distances_[{it_from->second, it_to->second}] = d.value;
-    }
+    auto it_to = ref_stops_.find(to);
+    assert(it_to != ref_stops_.end());
+
+    distances_[{it_from->second, it_to->second}] = distance;
 }
 
  const Transport::Route* Transport::SearchRoute(std::string_view id) const {

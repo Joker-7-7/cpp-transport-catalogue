@@ -135,9 +135,13 @@ void Input::ApplyCommands([[maybe_unused]] catalogue::Transport& catalogue) cons
             catalogue.AddRoute( command.id, ParseRoute(command.description));
         }
     }
+
     for(auto& command : commands_) {
         if(command.command == "Stop") {
-            catalogue.AddDistances(command.id, ParseDistances(command.description));
+            auto distances = ParseDistances(command.description);
+            for(auto& distance : distances) {
+                catalogue.AddDistance(command.id, distance.stop, distance.value);
+            }
         }
     }
 }

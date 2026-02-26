@@ -44,13 +44,13 @@ namespace catalogue
 
 		void AddRoute(std::string_view id,  const std::vector<std::string_view>& route);
 		void AddBusStop(std::string_view name, utils::Coordinates coord);
-		void AddDistances(std::string_view from, std::vector<utils::Distance> distances);
+		void AddDistance(std::string_view a, std::string_view b, double distance);
 		
 		const Route* SearchRoute(std::string_view id) const;
 		const Stop* SearchBusStop(std::string_view name) const;
 		std::optional<RouteInfo> GetRouteInfo(const std::string& name) const;
 		std::optional<std::set<std::string>> GetBusesInfo(const std::string& stop) const;
-		double GetDistance(std::string_view a, std::string_view b) const;
+		double GetDistance(std::string_view from, std::string_view to) const;
 
 	private:
 		std::deque<Stop> stops_;
