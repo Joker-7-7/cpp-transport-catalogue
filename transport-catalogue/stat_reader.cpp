@@ -17,7 +17,8 @@ void reader::ParseAndPrintStat(const catalogue::Transport& transport_catalogue, 
             output << 
                     (*info).stops_count << " stops on route, " <<
                     (*info).unique_stops_count << " unique stops, " <<
-                    (*info).length << " route length" << std::endl;
+                    (*info).length << " route length, " << 
+                    (*info).curvature << " curvature" << std::endl;
        }
        else { 
             output << "not found" << std::endl;

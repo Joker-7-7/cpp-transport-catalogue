@@ -1,9 +1,14 @@
 #pragma once
 
 #include <cmath>
-
+#include <string>
 namespace utils
 {
+    struct Distance {
+        std::string stop;
+        double value;
+    };
+
     struct Coordinates {
         double lat;
         double lng;

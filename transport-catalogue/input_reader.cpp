@@ -7,6 +7,7 @@
 
 using namespace utils;
 using namespace reader;
+
 /**
  * Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
  */
@@ -60,6 +61,38 @@ std::vector<std::string_view> Split(std::string_view string, char delim) {
     return result;
 }
 
+std::vector<Distance> ParseDistances([[maybe_unused]]std::string_view str) {
+auto parts = Split(str, ',');      // Split уже Trim'ит элементы
+    std::vector<Distance> res;
+    if (parts.size() <= 2) return res;
+
+    res.reserve(parts.size() - 2);
+
+    for (size_t i = 2; i < parts.size(); ++i) {
+        std::string_view el = Trim(parts[i]);
+
+        auto mpos = el.find('m');
+        if (mpos == el.npos) continue;
+
+        int dist = 0;
+        try {
+            dist = std::stoi(std::string(el.substr(0, mpos)));
+        } catch (...) {
+            continue;
+        }
+
+        std::string_view tail = Trim(el.substr(mpos + 1)); // после 'm'
+        // tail должен начинаться с "to"
+        if (tail.rfind("to", 0) != 0) continue;
+
+        std::string_view name = Trim(tail.substr(2)); // после "to"
+        if (name.empty()) continue;
+
+        res.push_back({std::string(name), static_cast<double>(dist)});
+    }
+    return res;
+}
+
 /**
  * Парсит маршрут.
  * Для кольцевого маршрута (A>B>C>A) возвращает массив названий остановок [A,B,C,A]
@@ -106,12 +139,21 @@ void Input::ParseLine(std::string_view line) {
 }
 
 void Input::ApplyCommands([[maybe_unused]] catalogue::Transport& catalogue) const {
-    for(auto& command : commands_) {
-        if(command.command == "Stop") {
-            catalogue.AddBusStop(command.id, ParseCoordinates(command.description));
+    for (const auto& c : commands_) {
+        if (c.command == "Stop") {
+            catalogue.AddBusStop(c.id, ParseCoordinates(c.description));
         }
-        else if (command.command == "Bus") {
-            catalogue.AddRoute( command.id, ParseRoute(command.description));
+    }
+
+    for (const auto& c : commands_) {
+        if (c.command == "Stop") {
+            catalogue.AddDistances(c.id, ParseDistances(c.description));
+        }
+    }
+
+    for (const auto& c : commands_) {
+        if (c.command == "Bus") {
+            catalogue.AddRoute(c.id, ParseRoute(c.description));
         }
     }
 }

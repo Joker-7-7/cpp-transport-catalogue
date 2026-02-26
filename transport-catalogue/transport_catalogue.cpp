@@ -2,6 +2,7 @@
 
 #include <unordered_set>
 #include <algorithm>
+#include <cassert>
 
 using namespace utils;
 using namespace catalogue;
@@ -23,7 +24,19 @@ void Transport::AddRoute(std::string_view id, const std::vector<std::string_view
 void Transport::AddBusStop(std::string_view name, Coordinates coord) {
     auto it = stops_.emplace(stops_.end(), Stop{std::string(name), coord});
     ref_stops_.emplace(it->name, &*it);
-    stop_to_routes_[name];
+    stop_to_routes_[it->name];
+}
+
+void Transport::AddDistances(std::string_view from, std::vector<Distance> distances) {
+    auto it_from = ref_stops_.find(from);
+    assert(it_from != ref_stops_.end());
+
+    for (const auto& d : distances) {
+        auto it_to = ref_stops_.find(d.stop);
+        if (it_to == ref_stops_.end()) 
+            continue; 
+        distances_[{it_from->second, it_to->second}] = d.value;
+    }
 }
 
  const Transport::Route* Transport::SearchRoute(std::string_view id) const {
@@ -51,13 +64,18 @@ std::optional<Transport::RouteInfo> Transport::GetRouteInfo(const std::string& n
     std::unordered_set<std::string_view> unique_elements(route->stops.begin(), route->stops.end());
     info.unique_stops_count = unique_elements.size();
     
-    double length = 0.0;
+    double geog_length = 0.0;
+    double actual_length = 0.0;
     for(size_t i = 0; i < route->stops.size() - 1; ++i) {
         auto* start = SearchBusStop(route->stops[i]);
         auto* end = SearchBusStop(route->stops[i+1]);
-        length += ComputeDistance(start->coord, end->coord);
+        geog_length += ComputeDistance(start->coord, end->coord);
+
+        actual_length += GetDistance(start->name, end->name);
     }
-    info.length = length;
+    info.length = actual_length;
+    assert(geog_length != 0.0);
+    info.curvature = actual_length / geog_length;
     return info;
 }
 
@@ -69,4 +87,21 @@ std::optional<std::set<std::string>> Transport::GetBusesInfo(const std::string& 
 
     std::set<std::string> unique_elements(stop->second.begin(), stop->second.end());
     return unique_elements;
+}
+
+double Transport::GetDistance(std::string_view stop1, std::string_view stop2) const {
+    auto it1 = ref_stops_.find(stop1);
+    auto it2 = ref_stops_.find(stop2);
+
+    if (it1 == ref_stops_.end() || it2 == ref_stops_.end()) {
+        return 0.0; 
+    }
+
+    if (auto it = distances_.find({it1->second, it2->second}); it != distances_.end()) {
+        return it->second;
+    }
+    if (auto it = distances_.find({it2->second, it1->second}); it != distances_.end()) {
+        return it->second;
+    }
+    return 0.0; 
 }
