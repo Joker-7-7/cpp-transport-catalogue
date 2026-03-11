@@ -23,8 +23,8 @@ namespace catalogue
 		};
 
 		struct RouteInfo {
-			size_t stops_count = 0;
-			size_t unique_stops_count = 0;
+			int stops_count = 0;
+			int unique_stops_count = 0;
 			double length = 0.0;
 			double curvature = 1.0;
 		};

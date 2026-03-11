@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <string>
+
 namespace utils
 {
     struct Distance {

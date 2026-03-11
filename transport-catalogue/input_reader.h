@@ -1,42 +1,42 @@
-#pragma once
-#include <string>
-#include <string_view>
-#include <vector>
+// #pragma once
+// #include <string>
+// #include <string_view>
+// #include <vector>
 
-#include "geo.h"
-#include "transport_catalogue.h"
+// #include "geo.h"
+// #include "transport_catalogue.h"
 
-namespace reader
-{
-    struct CommandDescription {
-        // Определяет, задана ли команда (поле command непустое)
-        explicit operator bool() const {
-            return !command.empty();
-        }
+// namespace reader
+// {
+//     struct CommandDescription {
+//         // Определяет, задана ли команда (поле command непустое)
+//         explicit operator bool() const {
+//             return !command.empty();
+//         }
 
-        bool operator!() const {
-            return !operator bool();
-        }
+//         bool operator!() const {
+//             return !operator bool();
+//         }
 
-        std::string command;      // Название команды
-        std::string id;           // id маршрута или остановки
-        std::string description;  // Параметры команды
-    };
+//         std::string command;      // Название команды
+//         std::string id;           // id маршрута или остановки
+//         std::string description;  // Параметры команды
+//     };
 
-    class Input {
-    public:
-        /**
-         * Парсит строку в структуру CommandDescription и сохраняет результат в commands_
-         */
-        void ParseLine(std::string_view line);
+//     class Input {
+//     public:
+//         /**
+//          * Парсит строку в структуру CommandDescription и сохраняет результат в commands_
+//          */
+//         void ParseLine(std::string_view line);
 
-        /**
-         * Наполняет данными транспортный справочник, используя команды из commands_
-         */
-        void ApplyCommands(catalogue::Transport& catalogue) const;
+//         /**
+//          * Наполняет данными транспортный справочник, используя команды из commands_
+//          */
+//         void ApplyCommands(catalogue::Transport& catalogue) const;
 
-        void ReadFrom(std::istream& input, catalogue::Transport& catalogue);
-    private:
-        std::vector<CommandDescription> commands_;
-    };
-}
+//         void ReadFrom(std::istream& input, catalogue::Transport& catalogue);
+//     private:
+//         std::vector<CommandDescription> commands_;
+//     };
+// }
