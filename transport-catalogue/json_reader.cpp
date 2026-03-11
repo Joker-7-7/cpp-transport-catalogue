@@ -48,7 +48,7 @@ std::vector<std::string_view> ParseRoute(json::Node node) {
 }
 
 
- void JsonInput::ReadFrom(const json::Document& document, catalogue::Transport& catalogue) {
+ void reader::ReadFrom(const json::Document& document, catalogue::Transport& catalogue) {
     auto& root = document.GetRoot();
     auto& base_request = root.AsMap().at("base_requests"s).AsArray();
 
@@ -74,4 +74,60 @@ std::vector<std::string_view> ParseRoute(json::Node node) {
             }
         }
     }
+}
+
+static svg::Color ParseColor(const json::Node& node) {
+    if (node.IsString()) {
+        return node.AsString();
+    }
+
+    const auto& arr = node.AsArray();
+    if (arr.size() == 3) {
+        return svg::Rgb{
+            static_cast<uint8_t>(arr[0].AsInt()),
+            static_cast<uint8_t>(arr[1].AsInt()),
+            static_cast<uint8_t>(arr[2].AsInt())
+        };
+    }
+
+    return svg::Rgba{
+        static_cast<uint8_t>(arr[0].AsInt()),
+        static_cast<uint8_t>(arr[1].AsInt()),
+        static_cast<uint8_t>(arr[2].AsInt()),
+        arr[3].AsDouble()
+    };
+}
+
+renderer::RenderSettings reader::ParseRenderSettings(const json::Document& document) {
+    const auto& root = document.GetRoot().AsMap();
+    const auto& settings_map = root.at("render_settings").AsMap();
+
+    renderer::RenderSettings settings;
+    settings.width = settings_map.at("width").AsDouble();
+    settings.height = settings_map.at("height").AsDouble();
+    settings.padding = settings_map.at("padding").AsDouble();
+
+    settings.line_width = settings_map.at("line_width").AsDouble();
+    settings.stop_radius = settings_map.at("stop_radius").AsDouble();
+
+    settings.bus_label_font_size = settings_map.at("bus_label_font_size").AsInt();
+    {
+        const auto& arr = settings_map.at("bus_label_offset").AsArray();
+        settings.bus_label_offset = {arr[0].AsDouble(), arr[1].AsDouble()};
+    }
+
+    settings.stop_label_font_size = settings_map.at("stop_label_font_size").AsInt();
+    {
+        const auto& arr = settings_map.at("stop_label_offset").AsArray();
+        settings.stop_label_offset = {arr[0].AsDouble(), arr[1].AsDouble()};
+    }
+
+    settings.underlayer_color = ParseColor(settings_map.at("underlayer_color"));
+    settings.underlayer_width = settings_map.at("underlayer_width").AsDouble();
+
+    for (const auto& color_node : settings_map.at("color_palette").AsArray()) {
+        settings.color_palette.push_back(ParseColor(color_node));
+    }
+
+    return settings;
 }

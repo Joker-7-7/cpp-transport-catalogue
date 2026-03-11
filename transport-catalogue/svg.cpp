@@ -35,6 +35,74 @@ namespace {
         return result;
     }
 }
+
+std::ostream& operator<<(std::ostream& out, StrokeLineCap stroke_line_cap) {
+        switch (stroke_line_cap)
+        {
+        case StrokeLineCap::BUTT:
+            out << "butt";
+            break;
+        case StrokeLineCap::ROUND:
+            out << "round";
+            break;
+        case StrokeLineCap::SQUARE:
+            out << "square";
+            break;
+        }
+        return out;
+}
+
+std::ostream& operator<<(std::ostream& out, StrokeLineJoin stroke_line_join) 
+{
+    switch (stroke_line_join)
+    {
+    case StrokeLineJoin::ARCS:
+        out << "arcs";
+        break;
+    case StrokeLineJoin::BEVEL:
+        out << "bevel";
+        break;
+    case StrokeLineJoin::MITER:
+        out << "miter";
+        break;
+    case StrokeLineJoin::MITER_CLIP:
+        out << "miter-clip";
+        break;
+    case StrokeLineJoin::ROUND:
+        out << "round";
+        break;
+    }
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const Color& color) {
+    std::visit(
+        [&out](const Color& color) {
+            
+            if (holds_alternative<std::monostate>(color)) {
+                out << "none";
+            } else if(holds_alternative<std::string>(color)) {
+                out << std::get<std::string>(color);
+            } else if (holds_alternative<Rgb>(color)) {
+                auto rgb = std::get<Rgb>(color);
+                out << "rgb("sv
+                    << static_cast<int>(rgb.red) << ","sv
+                    << static_cast<int>(rgb.green) << ","sv
+                    << static_cast<int>(rgb.blue) << ")"sv;
+            } else if (holds_alternative<Rgba>(color)) {
+                auto rgba = std::get<Rgba>(color);
+                out << "rgba("sv
+                    << static_cast<int>(rgba.red) << ","sv
+                    << static_cast<int>(rgba.green) << ","sv
+                    << static_cast<int>(rgba.blue) << ","sv
+                    << rgba.opacity << ")"sv;
+            }
+        },
+        color);
+
+    return out;
+}
+
 void Object::Render(const RenderContext& context) const {
     context.RenderIndent();
 
@@ -72,6 +140,7 @@ void Circle::RenderObject(const RenderContext& context) const {
     auto& out = context.out;
     out << "<circle cx=\""sv << center_.x << "\" cy=\""sv << center_.y << "\" "sv;
     out << "r=\""sv << radius_ << "\" "sv;
+    RenderAttrs(out);
     out << "/>"sv;
 }
 
@@ -89,7 +158,9 @@ void Polyline::RenderObject(const RenderContext& context) const {
 
         out << point.x << "," << point.y;
     }
-    out << "\" />"sv;
+    out << "\"";
+    RenderAttrs(out);
+    out << "/>"sv;
 }
 
 Polyline& Polyline::AddPoint(Point point) {
@@ -138,7 +209,7 @@ void Text::RenderObject(const RenderContext& context) const {
     out << " dx=\"" << offset_.x << "\"";
     out << " dy=\"" << offset_.y << "\"";
     out << " font-size=\"" << font_size_ << "\"";
-
+    RenderAttrs(out);
     if (!font_family_.empty()) {
         out << " font-family=\"" << font_family_ << "\"";
     }
@@ -150,6 +221,5 @@ void Text::RenderObject(const RenderContext& context) const {
     out << EscapeText(data_);
     out << "</text>";
 }
-
 
 }  // namespace svg

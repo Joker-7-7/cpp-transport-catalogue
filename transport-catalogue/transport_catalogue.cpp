@@ -7,6 +7,14 @@
 using namespace utils;
 using namespace catalogue;
 
+const std::deque<Transport::Route>& catalogue::Transport::GetAllRoutes() const {
+    return routes_;
+}
+
+const std::deque<Transport::Stop>& catalogue::Transport::GetAllStops() const {
+    return stops_;
+}
+
 void Transport::AddRoute(std::string_view id, const std::vector<std::string_view>& route) {
     std::vector<std::string> new_route;
     new_route.reserve(route.size());
