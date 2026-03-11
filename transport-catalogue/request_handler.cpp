@@ -17,8 +17,13 @@ using namespace std::literals;
  * Если вы затрудняетесь выбрать, что можно было бы поместить в этот файл,
  * можете оставить его пустым.
  */
+RequestHandler::RequestHandler(const catalogue::Transport& db, 
+                                const renderer::MapRenderer& renderer) :
+                                db_(db), renderer_(renderer)
+{
 
-  void reader::ReadJsonRequests(const json::Document& document, const catalogue::Transport& transport_catalogue, std::ostream& output)  {
+}
+  void RequestHandler::ReadJsonRequests(const json::Document& document, std::ostream& output)  {
     auto& root = document.GetRoot();
     auto& stat_requests = root.AsMap().at("stat_requests"s).AsArray();
     Array arr_requests;
@@ -32,7 +37,7 @@ using namespace std::literals;
             Dict stop_dic;
             stop_dic["request_id"] = id;
 
-            auto buses = transport_catalogue.GetBusesInfo(stop);
+            auto buses = db_.GetBusesInfo(stop);
             if(buses == std::nullopt) {
                 stop_dic["error_message"] = "not found"s;
             }
@@ -48,7 +53,7 @@ using namespace std::literals;
         else if (type == "Bus") {
             auto& bus = request.AsMap().at("name"s).AsString();
             auto id = request.AsMap().at("id"s).AsInt();
-            auto info = transport_catalogue.GetRouteInfo(bus);
+            auto info = db_.GetRouteInfo(bus);
             Dict bus_dic;
             bus_dic["request_id"] = id;
 
@@ -63,8 +68,22 @@ using namespace std::literals;
             }
             arr_requests.push_back({bus_dic});
         }
+        else if(type == "Map") {
+            auto id = request.AsMap().at("id"s).AsInt();
+            Dict bus_dic;
+            bus_dic["request_id"] = id;
+            std::stringstream ss;
+            auto map = RenderMap();
+            map.Render(ss);
+            bus_dic["map"] = ss.str();
+            arr_requests.push_back({bus_dic});
+        }
     }
 
     Document out_document(arr_requests);
     json::Print(out_document, output);
   }
+
+   svg::Document RequestHandler::RenderMap() const{
+        return renderer_.Render(db_);
+   }
