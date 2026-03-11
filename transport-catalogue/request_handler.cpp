@@ -70,13 +70,13 @@ RequestHandler::RequestHandler(const catalogue::Transport& db,
         }
         else if(type == "Map") {
             auto id = request.AsMap().at("id"s).AsInt();
-            Dict bus_dic;
-            bus_dic["request_id"] = id;
+            Dict map_dic;
+            map_dic["request_id"] = id;
             std::stringstream ss;
             auto map = RenderMap();
             map.Render(ss);
-            bus_dic["map"] = ss.str();
-            arr_requests.push_back({bus_dic});
+            map_dic["map"] = ss.str();
+            arr_requests.push_back({map_dic});
         }
     }
 
