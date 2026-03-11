@@ -20,6 +20,7 @@ namespace catalogue
         struct Route {
             std::string name;
             std::vector<std::string> stops;
+			bool is_roundtrip_ = false;
         };
 
         struct RouteInfo {
@@ -42,7 +43,7 @@ namespace catalogue
             }
         };
 
-        void AddRoute(std::string_view id, const std::vector<std::string_view>& route);
+        void AddRoute(std::string_view id, const std::vector<std::string_view>& route, bool is_roundtrip);
         void AddBusStop(std::string_view name, utils::Coordinates coord);
         void AddDistance(std::string_view a, std::string_view b, double distance);
 

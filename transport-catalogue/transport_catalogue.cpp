@@ -15,13 +15,13 @@ const std::deque<Transport::Stop>& catalogue::Transport::GetAllStops() const {
     return stops_;
 }
 
-void Transport::AddRoute(std::string_view id, const std::vector<std::string_view>& route) {
+void Transport::AddRoute(std::string_view id, const std::vector<std::string_view>& route, bool is_roundtrip) {
     std::vector<std::string> new_route;
     new_route.reserve(route.size());
     for(auto& stop : route) {
         new_route.push_back(std::string(stop));     
     }
-    auto it = routes_.emplace(routes_.end(), Route{std::string(id), std::move(new_route)});
+    auto it = routes_.emplace(routes_.end(), Route{std::string(id), std::move(new_route), is_roundtrip});
     ref_routes_.emplace(it->name, &*it);
     
     for(auto& stop : it->stops) {

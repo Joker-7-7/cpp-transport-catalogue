@@ -37,7 +37,6 @@ std::vector<std::string_view> ParseRoute(json::Node node) {
     }
         
     if(is_roundtrip) {
- //       result.push_back(stops.begin()->AsString());
         return result;
     }
     for(auto rit = stops.rbegin() + 1; rit != stops.rend(); ++rit) {
@@ -60,7 +59,8 @@ std::vector<std::string_view> ParseRoute(json::Node node) {
         }
         else if (type == "Bus"){ 
             auto name = request.AsMap().at("name"s).AsString();
-            catalogue.AddRoute( name, ParseRoute(request));
+            auto is_roundtrip = request.AsMap().at("is_roundtrip"s).AsBool();
+            catalogue.AddRoute( name, ParseRoute(request), is_roundtrip);
         }
     }
 
