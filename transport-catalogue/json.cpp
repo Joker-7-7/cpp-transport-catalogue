@@ -253,7 +253,6 @@ void PrintString(const std::string& value, std::ostream& out) {
                 out << "\\t"sv;
                 break;
             case '"':
-                // Символы " и \ выводятся как \" или \\, соответственно
                 [[fallthrough]];
             case '\\':
                 out.put('\\');

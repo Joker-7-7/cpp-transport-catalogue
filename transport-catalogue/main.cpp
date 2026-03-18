@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+
 #include "json.h"
 #include "json_reader.h"
 #include "transport_catalogue.h"
@@ -10,7 +12,10 @@ using namespace std;
 int main() {
     catalogue::Transport catalogue;
 
-    const auto document = json::Load(std::cin);
+     ifstream input;
+    input.open("/Users/ggevorgyan/Documents/practicum-projects/cpp-transport-catalogue/transport-catalogue/input.json");
+
+    const auto document = json::Load(input);
     reader::ReadFrom(document, catalogue);
 
     const auto render_settings = reader::ParseRenderSettings(document);

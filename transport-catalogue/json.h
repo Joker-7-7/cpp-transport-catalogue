@@ -129,6 +129,10 @@ public:
         return value_;
     }
 
+    Value& GetValue() {
+        return value_;
+    }
+
 private:
     Value value_;
 };

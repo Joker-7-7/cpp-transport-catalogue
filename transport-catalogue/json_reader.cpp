@@ -46,8 +46,7 @@ std::vector<std::string_view> ParseRoute(json::Node node) {
     return result;
 }
 
-
- void reader::ReadFrom(const json::Document& document, catalogue::Transport& catalogue) {
+void reader::ReadFrom(const json::Document& document, catalogue::Transport& catalogue) {
     auto& root = document.GetRoot();
     auto& base_request = root.AsMap().at("base_requests"s).AsArray();
 
