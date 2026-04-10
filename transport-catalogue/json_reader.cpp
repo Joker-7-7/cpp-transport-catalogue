@@ -130,3 +130,13 @@ renderer::RenderSettings reader::ParseRenderSettings(const json::Document& docum
 
     return settings;
 }
+
+router::TransportRouter::RoutingSettings reader::ParseRoutingSettings(const json::Document& document) {
+    const auto& root = document.GetRoot().AsMap();
+    const auto& settings = root.at("routing_settings").AsMap();
+
+    return {
+        settings.at("bus_wait_time").AsInt(),
+        settings.at("bus_velocity").AsDouble()
+    };
+}

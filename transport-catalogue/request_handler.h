@@ -4,6 +4,7 @@
 #include "json.h"
 #include "transport_catalogue.h"
 #include "map_renderer.h"
+#include "transport_router.h"
 
 #include <iosfwd>
 #include <string_view>
@@ -29,7 +30,9 @@ namespace reader
     class RequestHandler {
     public:
         // MapRenderer понадобится в следующей части итогового проекта
-        RequestHandler(const catalogue::Transport& db, const renderer::MapRenderer& renderer);
+        RequestHandler(const catalogue::Transport& db, 
+                    const renderer::MapRenderer& renderer,
+                    const router::TransportRouter& router);
 
         void ReadJsonRequests(const json::Document& document, std::ostream& output);
         
@@ -40,5 +43,6 @@ namespace reader
         // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
         const catalogue::Transport& db_;
         const renderer::MapRenderer& renderer_;
+        const router::TransportRouter& router_;
     };
 }

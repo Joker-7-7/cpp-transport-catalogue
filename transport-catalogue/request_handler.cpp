@@ -18,9 +18,12 @@ using namespace std::literals;
  * можете оставить его пустым.
  */
 RequestHandler::RequestHandler(const catalogue::Transport& db,
-                               const renderer::MapRenderer& renderer)
-    : db_(db)
-    , renderer_(renderer) {
+                               const renderer::MapRenderer& renderer,
+                                const router::TransportRouter& router) :
+    db_(db),
+    renderer_(renderer),
+    router_(router) 
+{
 }
 
 void RequestHandler::ReadJsonRequests(const json::Document& document, std::ostream& output) {
@@ -69,6 +72,37 @@ void RequestHandler::ReadJsonRequests(const json::Document& document, std::ostre
             map.Render(ss);
 
             response.Key("map"s).Value(ss.str());
+        }
+        else if (type == "Route"s) {
+            const auto& from = request_map.at("from"s).AsString();
+            const auto& to = request_map.at("to"s).AsString();
+
+            auto route = router_.BuildRoute(from, to);
+
+            if (!route) {
+                response.Key("error_message"s).Value("not found"s);
+            } else {
+                response.Key("total_time"s).Value(route->total_time);
+
+                auto items = response.Key("items"s).StartArray();
+                for (const auto& item : route->items) {
+                    if (item.type == router::TransportRouter::RouteItemType::Wait) {
+                        items.StartDict()
+                            .Key("type"s).Value("Wait"s)
+                            .Key("stop_name"s).Value(item.name)
+                            .Key("time"s).Value(item.time)
+                        .EndDict();
+                    } else if (item.type == router::TransportRouter::RouteItemType::Bus) {
+                        items.StartDict()
+                            .Key("type"s).Value("Bus"s)
+                            .Key("bus"s).Value(item.name)
+                            .Key("span_count"s).Value(item.span_count)
+                            .Key("time"s).Value(item.time)
+                        .EndDict();
+                    }
+                }
+                items.EndArray();
+            }
         }
 
         response.EndDict();

@@ -4,6 +4,7 @@
 #include "transport_catalogue.h"
 #include "json.h"
 #include "map_renderer.h"
+#include "transport_router.h"
 
 #include <string>
 #include <string_view>
@@ -16,6 +17,8 @@
 namespace reader
 {
     renderer::RenderSettings ParseRenderSettings(const json::Document& document);
+
+    router::TransportRouter::RoutingSettings ParseRoutingSettings(const json::Document& document);
     
     void ReadFrom(const json::Document& document, catalogue::Transport& catalogue);
 }
