@@ -1,5 +1,14 @@
 #pragma once
 
+/**
+ * @file request_handler.h
+ * Facade that dispatches stat requests to the underlying subsystems.
+ *
+ * The RequestHandler aggregates the transport catalogue, map renderer, and
+ * transport router. It processes the "stat_requests" section of the input
+ * JSON and writes the corresponding JSON response array to an output stream.
+ */
+
 #include "svg.h"
 #include "json.h"
 #include "transport_catalogue.h"
@@ -10,37 +19,52 @@
 #include <string_view>
 #include <ostream>
 
-/*
- * Здесь можно было бы разместить код обработчика запросов к базе, содержащего логику, которую не
- * хотелось бы помещать ни в transport_catalogue, ни в json reader.
- *
- * В качестве источника для идей предлагаем взглянуть на нашу версию обработчика запросов.
- * Вы можете реализовать обработку запросов способом, который удобнее вам.
- *
- * Если вы затрудняетесь выбрать, что можно было бы поместить в этот файл,
- * можете оставить его пустым.
+/**
+ * JSON reading and request handling.
  */
-
 namespace reader
 {
-    
-    // Класс RequestHandler играет роль Фасада, упрощающего взаимодействие JSON reader-а
-    // с другими подсистемами приложения.
-    // См. паттерн проектирования Фасад: https://ru.wikipedia.org/wiki/Фасад_(шаблон_проектирования)
+    /**
+     * Facade that simplifies interaction between the JSON reader and
+     *        the other application subsystems.
+     *
+     * Implements the Facade design pattern. Accepts a JSON document
+     * containing stat requests, delegates each request to the appropriate
+     * subsystem (catalogue, map renderer, or router), and formats the
+     * results as a JSON array.
+     */
     class RequestHandler {
     public:
-        // MapRenderer понадобится в следующей части итогового проекта
-        RequestHandler(const catalogue::Transport& db, 
+        /**
+         * Constructs a handler with references to all subsystems.
+         *
+         * @param db       The transport catalogue (read-only).
+         * @param renderer The map renderer.
+         * @param router   The transport router for route-finding queries.
+         */
+        RequestHandler(const catalogue::Transport& db,
                     const renderer::MapRenderer& renderer,
                     const router::TransportRouter& router);
 
+        /**
+         * Processes the "stat_requests" array from the input document.
+         *
+         * Iterates over stat requests, dispatches each by type ("Stop", "Bus",
+         * "Map", "Route"), and writes a JSON array of responses to the output
+         * stream.
+         *
+         * @param document The full input JSON document.
+         * @param output   The output stream to write the JSON response to.
+         */
         void ReadJsonRequests(const json::Document& document, std::ostream& output);
-        
-        // Этот метод будет нужен в следующей части итогового проекта
+
+        /**
+         * Renders the full SVG map for the current catalogue.
+         * @return An SVG document representing the transport map.
+         */
         svg::Document RenderMap() const;
 
     private:
-        // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
         const catalogue::Transport& db_;
         const renderer::MapRenderer& renderer_;
         const router::TransportRouter& router_;

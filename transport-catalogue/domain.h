@@ -1,13 +1,15 @@
 #pragma once
 
-/*
- * В этом файле вы можете разместить классы/структуры, которые являются частью предметной области (domain)
- * вашего приложения и не зависят от транспортного справочника. Например, Автобусные маршруты и Остановки.
+/**
+ * @file domain.h
+ * Domain entities for the transport catalogue.
  *
- * Их можно было бы разместить и в transport_catalogue.h, однако вынесение их в отдельный
- * заголовочный файл может оказаться полезным, когда дело дойдёт до визуализации карты маршрутов:
- * визуализатор карты (map_renderer) можно будет сделать независящим от транспортного справочника.
+ * This file is intended for classes/structs that are part of the application's
+ * domain model and are independent of the transport catalogue itself.
+ * Examples: bus routes and stops.
  *
- * Если структура вашего приложения не позволяет так сделать, просто оставьте этот файл пустым.
+ * Keeping domain types separate from transport_catalogue.h allows the map
+ * renderer to depend only on domain entities, not on the entire catalogue.
  *
+ * If the application structure does not require this separation, leave this file empty.
  */

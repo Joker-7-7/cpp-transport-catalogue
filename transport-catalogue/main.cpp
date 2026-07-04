@@ -6,12 +6,17 @@
 #include "map_renderer.h"
 #include "request_handler.h"
 
+#include <fstream>
+
 using namespace std;
 
 int main() {
     catalogue::Transport catalogue;
 
-    const auto document = json::Load(std::cin);
+    ifstream input;
+    input.open("/Users/ggevorgyan/Documents/practicum-projects/cpp-transport-catalogue/transport-catalogue/input.json");
+
+    const auto document = json::Load(input);
     reader::ReadFrom(document, catalogue);
 
     const auto render_settings = reader::ParseRenderSettings(document);

@@ -1,26 +1,71 @@
 #pragma once
 
+/**
+ * @file geo.h
+ * Geographic utilities: coordinates and distance computation.
+ *
+ * Provides data structures for representing stop coordinates and road
+ * distances, as well as a function for computing the geographic (haversine)
+ * distance between two points on Earth.
+ */
+
 #include <cmath>
 #include <string>
 
+/**
+ * Utility namespace for the application.
+ */
 namespace utils
 {
+    /**
+     * Describes the road distance to a neighboring stop.
+     */
     struct Distance {
-        std::string stop;
-        double value;
+        /**
+         * Name of the destination stop.
+         */        std::string stop;
+        /**
+         * Actual road distance in meters.
+         */        double value;
     };
 
+    /**
+     * Geographic coordinates of a point.
+     */
     struct Coordinates {
-        double lat;
-        double lng;
+        /**
+         * Latitude in degrees.
+         */        double lat;
+        /**
+         * Longitude in degrees.
+         */        double lng;
+
+        /**
+         * Equality comparison for coordinates.
+         * @param other Coordinates to compare against.
+         * @return true if both latitude and longitude match exactly.
+         */
         bool operator==(const Coordinates& other) const {
             return lat == other.lat && lng == other.lng;
         }
+
+        /**
+         * Inequality comparison for coordinates.
+         * @param other Coordinates to compare against.
+         * @return true if coordinates differ.
+         */
         bool operator!=(const Coordinates& other) const {
             return !(*this == other);
         }
     };
 
+    /**
+     * Computes the great-circle distance between two points using the haversine formula.
+     *
+     * @param from Starting point coordinates.
+     * @param to   Destination point coordinates.
+     * @return Distance in meters. Returns 0.0 if the two points are identical.
+     */
     inline double ComputeDistance(Coordinates from, Coordinates to) {
         using namespace std;
         if (from == to) {

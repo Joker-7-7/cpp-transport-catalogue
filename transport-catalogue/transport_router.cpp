@@ -3,9 +3,9 @@
 using namespace router;
 
 TransportRouter::TransportRouter(const catalogue::Transport& db,
-                                 RoutingSettings settings)
-    : db_(db)
-    , settings_(settings) {
+                                 RoutingSettings settings) : 
+    db_(db),
+    settings_(settings) {
     size_t idx = 0;
     for (const auto& stop : db_.GetAllStops()) {
         stop_to_index_[stop.name] = idx++;

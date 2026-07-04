@@ -1,5 +1,14 @@
 #pragma once
 
+/**
+ * @file router.h
+ * Shortest-path router on a weighted directed graph.
+ *
+ * Implements the Floyd-Warshall algorithm for all-pairs shortest paths.
+ * Once built, the router can answer repeated BuildRoute() queries in O(1)
+ * time (plus O(E) for path reconstruction).
+ */
+
 #include "graph.h"
 
 #include <algorithm>
@@ -12,30 +21,70 @@
 #include <utility>
 #include <vector>
 
+/**
+ * Graph algorithms and data structures.
+ */
 namespace graph {
 
+/**
+ * Computes shortest paths on a @ref DirectedWeightedGraph.
+ *
+ * Uses a modified Floyd-Warshall algorithm. The router is built once
+ * from a graph and then supports efficient repeated route queries.
+ * Edge weights must be non-negative.
+ *
+ * @tparam Weight Numeric type for edge weights (e.g. double).
+ */
 template <typename Weight>
 class Router {
 private:
     using Graph = DirectedWeightedGraph<Weight>;
 
 public:
+    /**
+     * Constructs the router and precomputes all-pairs shortest paths.
+     *
+     * @param graph The graph to build routes on. Must remain valid for
+     *              the lifetime of the router.
+     * @throws std::domain_error if any edge has a negative weight.
+     */
     explicit Router(const Graph& graph);
 
+    /**
+     * The result of a successful route query.
+     */
     struct RouteInfo {
-        Weight weight;
-        std::vector<EdgeId> edges;
+        /**
+         * Total weight (cost) of the shortest path.
+         */        Weight weight;
+        /**
+         * Sequence of edge ids forming the path, in order.
+         */        std::vector<EdgeId> edges;
     };
 
+    /**
+     * Finds the shortest path between two vertices.
+     *
+     * @param from Source vertex id.
+     * @param to   Destination vertex id.
+     * @return The route info if a path exists, std::nullopt otherwise.
+     */
     std::optional<RouteInfo> BuildRoute(VertexId from, VertexId to) const;
 
 private:
+    /**
+     * Per-vertex-pair data stored during the Floyd-Warshall relaxation.
+     */
     struct RouteInternalData {
         Weight weight;
         std::optional<EdgeId> prev_edge;
     };
+
     using RoutesInternalData = std::vector<std::vector<std::optional<RouteInternalData>>>;
 
+    /**
+     * Initializes direct edges from the graph before relaxation.
+     */
     void InitializeRoutesInternalData(const Graph& graph) {
         const size_t vertex_count = graph.GetVertexCount();
         for (VertexId vertex = 0; vertex < vertex_count; ++vertex) {
@@ -53,6 +102,10 @@ private:
         }
     }
 
+    /**
+     * Tries to improve the route from vertex_from to vertex_to by
+     *        concatenating two known sub-routes.
+     */
     void RelaxRoute(VertexId vertex_from, VertexId vertex_to, const RouteInternalData& route_from,
                     const RouteInternalData& route_to) {
         auto& route_relaxing = routes_internal_data_[vertex_from][vertex_to];
@@ -63,6 +116,9 @@ private:
         }
     }
 
+    /**
+     * Relaxes all vertex pairs through a single intermediate vertex.
+     */
     void RelaxRoutesInternalDataThroughVertex(size_t vertex_count, VertexId vertex_through) {
         for (VertexId vertex_from = 0; vertex_from < vertex_count; ++vertex_from) {
             if (const auto& route_from = routes_internal_data_[vertex_from][vertex_through]) {
@@ -75,7 +131,10 @@ private:
         }
     }
 
-    static constexpr Weight ZERO_WEIGHT{};
+    /**
+     * Zero-weight constant of the Weight type.
+     */    static constexpr Weight ZERO_WEIGHT{};
+
     const Graph& graph_;
     RoutesInternalData routes_internal_data_;
 };
